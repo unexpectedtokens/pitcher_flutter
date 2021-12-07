@@ -1,15 +1,31 @@
-import 'location.dart';
+import 'package:pitcher/db/main.dart';
+import 'package:pitcher/models/like.dart';
+import 'package:pitcher/models/send.dart';
 
+import 'location.dart';
+import 'climber.dart';
 
 
 const String tableName = "climb";
 
+
+
+enum ClimbType{
+  route,
+  boulder,
+}
+
 class Climb{
+  int? id;
   final String name;
   final String description;
   final Location location;
   final String grade;
   final int postedByID;
+  final ClimbType typeOfClimb;
+  List<Send> sends = [];
+  List<Like> likes = [];
+
 
   Climb({
     required this.name,
@@ -17,6 +33,7 @@ class Climb{
     required this.location,
     required this.grade,
     required this.postedByID,
+    required this.typeOfClimb,
   });
 
 
@@ -30,11 +47,34 @@ class Climb{
         long NUMERIC,
         grade VARCHAR(3),
         postedByID INTEGER,
-        typeofclimb VARCHAR(7)
+        typeofclimb VARCHAR(7),
+        cragid INTEGER
        );
     ''';
 
 
+  }
+
+
+
+  Future insert(int cragid) async{
+    var db = await PitcherDatabase().database;
+    var givenID = await db.insert(tableName, toJSON(cragid));
+    id = givenID;
+    return;
+  }
+
+  Map<String, dynamic> toJSON(int cragid) {
+    return <String, dynamic>{
+      'name': name,
+      'description': description,
+      'lat': location.lat,
+      'long': location.long,
+      'postedByID': 1,
+      "typeofclimb": typeOfClimb == ClimbType.boulder ? "boulder" : "route",
+      "grade": grade,
+      "cragid": cragid
+    };
   }
 
   static List<String> grades = const [
