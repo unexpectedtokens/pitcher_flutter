@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 
 
 
-class ContentTitle extends StatelessWidget {
+class CreatorText extends StatelessWidget {
   final String username;
-  const ContentTitle({
-    Key? key
+  const CreatorText({
+    Key? key,
+    required this.username,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-        "Created by Daniel de Jong",
-        style: TextStyle(
+    return Text(
+        "Created by $username",
+        style: const TextStyle(
           color: Colors.blue,
         )
-    ),
+    );
   }
 }

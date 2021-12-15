@@ -1,6 +1,6 @@
 import 'package:pitcher/db/main.dart';
 import 'package:pitcher/models/like.dart';
-import 'package:pitcher/models/send.dart';
+import 'package:pitcher/models/send.dart' as sends_mod;
 
 import 'location.dart';
 import 'climber.dart';
@@ -21,9 +21,9 @@ class Climb{
   final String description;
   final Location location;
   final String grade;
-  final int postedByID;
+  late Climber climber;
   final ClimbType typeOfClimb;
-  List<Send> sends = [];
+  List<sends_mod.Send> sends = [];
   List<Like> likes = [];
 
 
@@ -32,7 +32,6 @@ class Climb{
     required this.description,
     required this.location,
     required this.grade,
-    required this.postedByID,
     required this.typeOfClimb,
   });
 
@@ -61,8 +60,18 @@ class Climb{
     var db = await PitcherDatabase().database;
     var givenID = await db.insert(tableName, toJSON(cragid));
     id = givenID;
+    await db.close();
     return;
   }
+
+  Future addSend(sends_mod.Send send, int climbid) async {
+    var db = await PitcherDatabase();
+    await send.insert(climbid);
+    sends.add(send);
+    await db.close();
+    return;
+  }
+
 
   Map<String, dynamic> toJSON(int cragid) {
     return <String, dynamic>{

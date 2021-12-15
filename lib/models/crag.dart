@@ -60,7 +60,7 @@ class Crag{
     await db.close();
     return List.generate(maps.length, (index) {
       var crag = list[index];
-      return Crag(
+      var retVal = Crag(
           id: int.parse(crag["cragid"].toString()),
           creator: climber.Climber.returnMockClimber(),
           name: crag["name"].toString(),
@@ -70,6 +70,15 @@ class Crag{
             long: double.parse(crag["long"].toString()),
           )
       );
+      var creator = climber.Climber(
+          username: crag["username"].toString(),
+          email: "email",
+          firstname: "firstname",
+          lastname: "lastname",
+          password: "password"
+      );
+      retVal.creator = creator;
+      return retVal;
 
     });
 
@@ -115,19 +124,32 @@ class Crag{
   Future loadClimbs() async{
     climbs = <climb.Climb>[];
     var db = await PitcherDatabase().database;
-    var list = await db.query(climb.tableName, where: "cragid = $id");
-    List<climb.Climb> fetchedClimbs = List<climb.Climb>.generate(list.length, (index) =>
-        climb.Climb(
-            description: list[index]["description"].toString(),
-            name: list[index]["name"].toString(),
-            location: Location(
-                lat: double.parse(list[index]["lat"].toString()),
-                long: double.parse(list[index]["long"].toString())
-            ),
-          grade: list[index]["grade"].toString(),
-          typeOfClimb: list[index]["typeofclimb"].toString() == "boulder" ? climb.ClimbType.boulder : climb.ClimbType.route,
-          postedByID: int.parse(list[index]["postedByID"].toString()),
-        )
+    var list = await db.rawQuery("SELECT cl._id as climbid, cl.description, cl.name, cl.lat, cl.long, cl.grade, cl.typeofclimb, c.username, c.lastname, c.firstname, c.email FROM ${climb.tableName} cl INNER JOIN ${climber.tableName} c ON cl.postedbyID = c._id WHERE cragid = ?", [id]);
+    List<climb.Climb> fetchedClimbs = List<climb.Climb>.generate(list.length, (index) {
+      var climbid = int.parse(list[index]["climbid"].toString());
+      var fetchedClimb = climb.Climb(
+        description: list[index]["description"].toString(),
+        name: list[index]["name"].toString(),
+        location: Location(
+            lat: double.parse(list[index]["lat"].toString()),
+            long: double.parse(list[index]["long"].toString())
+        ),
+        grade: list[index]["grade"].toString(),
+        typeOfClimb: list[index]["typeofclimb"].toString() == "boulder" ? climb
+            .ClimbType.boulder : climb.ClimbType.route,
+
+      );
+      fetchedClimb.id = climbid;
+      var creator = climber.Climber(
+        username: list[index]["username"].toString(),
+        email: list[index]["email"].toString(),
+        password: "",
+        firstname: list[index]["firstname"].toString(),
+        lastname: list[index]["lastname"].toString(),
+      );
+      fetchedClimb.climber = creator;
+      return fetchedClimb;
+    }
     );
     climbs = fetchedClimbs;
     return;
