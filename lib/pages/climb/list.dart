@@ -44,7 +44,7 @@ class ClimbList extends StatelessWidget {
                       horizontal: 30.0
                   ),
                   subtitle: Text(
-                      "Created by ${Climber.returnMockClimber().username}"
+                      "Created by ${climb.climber.username}"
                   ),
                   title: Text(
                       climb.name

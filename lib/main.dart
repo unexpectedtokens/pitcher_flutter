@@ -11,7 +11,6 @@ import 'pages/crag/add.dart';
 import 'pages/auth/profile.dart';
 import 'pages/climb/add.dart';
 import 'pages/climb/list.dart';
-import 'package:camera/camera.dart';
 
 
 

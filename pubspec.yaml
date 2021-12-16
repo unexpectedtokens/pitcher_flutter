@@ -33,12 +33,13 @@ dependencies:
     sdk: flutter
   sqflite:
   path:
-  path_provider:
-  camera:
+#path_provider:
+#  camera:
   location: ^4.2.0
   loading_indicator:
   mapbox_gl:
   latlong2:
+  image_picker:
 
 
 
