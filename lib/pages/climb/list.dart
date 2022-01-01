@@ -55,9 +55,12 @@ class ClimbList extends StatelessWidget {
                   tileColor: Colors.white,
 
                   onTap: (){
-                    Navigator.pushNamed(context, "/climbingdetail", arguments: ClimbDetailArgs(
-                      climb: climb,
-                    ));
+                    Navigator.pushNamed(
+                        context,
+                        "/climbingdetail",
+                        arguments: ClimbDetailArgs(
+                          climb: climb,
+                        ));
                   },
 
                 ),

@@ -14,7 +14,7 @@ class ContentTitle extends StatelessWidget {
       title,
       style: const TextStyle(
           color: Colors.black87,
-          fontSize: 25.0,
+          fontSize: 20.0,
           fontWeight: FontWeight.bold
       ),
     );

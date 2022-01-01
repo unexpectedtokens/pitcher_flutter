@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pitcher/pages/climb/add_send.dart';
-import 'package:pitcher/pages/climb/camera.dart';
 import 'package:pitcher/pages/climb/detail.dart';
 import 'package:pitcher/pages/crag/detail.dart';
 import "pages/auth/login.dart";
@@ -63,7 +62,6 @@ class App extends StatelessWidget {
         "/climbinglist": (context) => const ClimbList(),
         "/climbingdetail": (context) => const ClimbDetail(),
         "/climbaddsend": (context) => const AddSendView(),
-        "/climbcamera": (context) =>  const CameraView()
       },
     );
   }

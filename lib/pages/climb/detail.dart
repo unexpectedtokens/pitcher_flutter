@@ -1,6 +1,8 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pitcher/models/climb.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pitcher/models/send.dart';
@@ -33,7 +35,7 @@ class ContentContainer extends StatelessWidget{
   Widget build(BuildContext context){
     return Container(
       child: content,
-      padding: const EdgeInsets.all(30.0),
+      padding: const EdgeInsets.all(20.0),
     );
   }
 }
@@ -47,17 +49,22 @@ class ClimbDetail extends StatefulWidget {
 }
 
 class _ClimbDetailState extends State<ClimbDetail> {
-  XFile? bannerImage;
+  File? bannerImage;
   bool initialLoad = true;
   late Climb climb;
   List<Send> sendList = [];
 
-  
+
   Future takeImage() async {
     final image = await ImagePicker().pickImage(source: ImageSource.camera);
     if (image == null) return;
+    final Directory dir = await getApplicationDocumentsDirectory();
+    var docs = dir.path;
+    var filename = basename(image.path);
+    final File localImage = await File(image.path).copy("$docs/$filename");
+    await climb.setBannerImage(filename);
     setState(() {
-      bannerImage = image;
+      bannerImage = localImage;
     });
 
   }
@@ -69,7 +76,20 @@ class _ClimbDetailState extends State<ClimbDetail> {
     });
   }
 
+  void _loadBannerImage(String filename) async{
+    File image;
 
+    var docs = await getApplicationDocumentsDirectory();
+    var docsPath = docs.path;
+    if(climb.bannerImagePath.isNotEmpty){
+      image = File("$docsPath/$filename");
+      print( await image.length());
+      setState((){
+        bannerImage = image;
+      });
+    }
+
+  }
 
 
   @override
@@ -82,6 +102,7 @@ class _ClimbDetailState extends State<ClimbDetail> {
         climb = curClimb;
       });
       _loadSends(curClimb.id!);
+      _loadBannerImage(curClimb.bannerImagePath);
     }
 
 
@@ -92,11 +113,9 @@ class _ClimbDetailState extends State<ClimbDetail> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    bannerImage != null ? Image.file(
-                        File(bannerImage!.path),
-                    ) :  Container(
-                      child: Text(""),
-                    ),
+                    bannerImage != null ?  Image.file(
+                        bannerImage!
+                    ) : const Text(""),
                     ContentContainer(
                         content: Row(
                             children: [
@@ -104,8 +123,11 @@ class _ClimbDetailState extends State<ClimbDetail> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      ContentTitle(
-                                          title: "${climb.name} - ${climb.grade}"
+                                      Container(
+                                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 10.0),
+                                        child: ContentTitle(
+                                            title: "${climb.name} - ${climb.grade}"
+                                        ),
                                       ),
                                       CreatorText(
                                           username: climb.climber.username
@@ -120,10 +142,7 @@ class _ClimbDetailState extends State<ClimbDetail> {
                                     children: [
                                       IconButton(
                                         onPressed: (){
-                                          // Navigator.pushNamed(
-                                          //     context,
-                                          //     "/climbcamera"
-                                          // );
+
                                           takeImage();
                                         },
                                         icon: const Icon(Icons.add_a_photo),
@@ -137,8 +156,6 @@ class _ClimbDetailState extends State<ClimbDetail> {
                                       ),
                                     ],
                                   ),
-
-                                  Text("This climb has ${sendList.length} sends")
                                 ],
                               ),
                             ]
@@ -177,7 +194,6 @@ class _ClimbDetailState extends State<ClimbDetail> {
                               child: Row(
                                 children: const [
                                   Icon(
-
                                       Icons.add
                                   ),
                                   Text("Add send")

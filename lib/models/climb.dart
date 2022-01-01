@@ -23,6 +23,7 @@ class Climb{
   final String grade;
   late Climber climber;
   final ClimbType typeOfClimb;
+  late String bannerImagePath = "";
   List<sends_mod.Send> sends = [];
   List<Like> likes = [];
 
@@ -47,13 +48,23 @@ class Climb{
         grade VARCHAR(3),
         postedByID INTEGER,
         typeofclimb VARCHAR(7),
-        cragid INTEGER
+        cragid INTEGER,
+        bannerimg VARCHAR(50)
        );
     ''';
 
 
   }
 
+
+  Future setBannerImage(String path) async{
+    var db = await PitcherDatabase().database;
+    await db.update(tableName, {
+      "bannerimg": path
+    });
+    bannerImagePath = path;
+    return;
+  }
 
 
   Future insert(int cragid) async{

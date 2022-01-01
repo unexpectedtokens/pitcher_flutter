@@ -33,7 +33,7 @@ dependencies:
     sdk: flutter
   sqflite:
   path:
-#path_provider:
+  path_provider:
 #  camera:
   location: ^4.2.0
   loading_indicator:

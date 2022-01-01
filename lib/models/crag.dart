@@ -124,7 +124,7 @@ class Crag{
   Future loadClimbs() async{
     climbs = <climb.Climb>[];
     var db = await PitcherDatabase().database;
-    var list = await db.rawQuery("SELECT cl._id as climbid, cl.description, cl.name, cl.lat, cl.long, cl.grade, cl.typeofclimb, c.username, c.lastname, c.firstname, c.email FROM ${climb.tableName} cl INNER JOIN ${climber.tableName} c ON cl.postedbyID = c._id WHERE cragid = ?", [id]);
+    var list = await db.rawQuery("SELECT cl._id as climbid, cl.bannerimg, cl.description, cl.name, cl.lat, cl.long, cl.grade, cl.typeofclimb, c.username, c.lastname, c.firstname, c.email FROM ${climb.tableName} cl INNER JOIN ${climber.tableName} c ON cl.postedbyID = c._id WHERE cragid = ?", [id]);
     List<climb.Climb> fetchedClimbs = List<climb.Climb>.generate(list.length, (index) {
       var climbid = int.parse(list[index]["climbid"].toString());
       var fetchedClimb = climb.Climb(
@@ -140,6 +140,7 @@ class Crag{
 
       );
       fetchedClimb.id = climbid;
+      fetchedClimb.bannerImagePath = list[index]["bannerimg"].toString();
       var creator = climber.Climber(
         username: list[index]["username"].toString(),
         email: list[index]["email"].toString(),
