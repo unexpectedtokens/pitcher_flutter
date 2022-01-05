@@ -117,4 +117,9 @@ CREATE TABLE $tableName(
     climber.id = 1;
     return climber;
   }
+  static Future<bool> checkIfLogin() async{
+    var db = await PitcherDatabase().database;
+    var res = await db.rawQuery("SELECT 1 FROM login;");
+    return res.isNotEmpty;
+  }
 }

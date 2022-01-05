@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:pitcher/models/climber.dart';
 
 class AuthLoader extends StatefulWidget{
 
@@ -24,11 +25,14 @@ class _AuthLoaderState extends State<AuthLoader>{
 
 
 
-  void simulateAuthAttempt() async {
-    Timer(const Duration(seconds: 3), ()=> setState(() {
-      navigateToAuth();
-    }));
 
+  void authAttempt() async {
+    var loggedIn = await Climber.checkIfLogin();
+    if (loggedIn){
+      navigateToAuth();
+    }else{
+      navigateToApp();
+    }
   }
 
   void navigateToAuth(){
@@ -41,7 +45,7 @@ class _AuthLoaderState extends State<AuthLoader>{
 
   @override
   void initState(){
-    simulateAuthAttempt();
+    authAttempt();
     super.initState();
   }
 

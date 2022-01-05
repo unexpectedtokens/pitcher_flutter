@@ -53,7 +53,6 @@ class _LoginState extends State<LoginPage>{
 
   @override
   Widget build(BuildContext build){
-    print("running");
     return SafeArea(child: Scaffold(
         body: Padding(
           padding: const EdgeInsets.fromLTRB(50.0, 50.0, 50.0, 0),child: Column(
@@ -74,7 +73,6 @@ class _LoginState extends State<LoginPage>{
 
                   ),
                   controller: _usernameController,
-                  autofocus: true,
                 )
             ),
             Padding(

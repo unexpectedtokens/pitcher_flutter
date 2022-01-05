@@ -1,11 +1,11 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:pitcher/models/climb.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pitcher/models/send.dart';
+import 'package:pitcher/pages/climb/photo_editor.dart';
 import 'package:pitcher/reusables/content_title.dart';
 import 'package:pitcher/reusables/creator_title.dart';
 import 'package:pitcher/reusables/likes_display.dart';
@@ -55,18 +55,20 @@ class _ClimbDetailState extends State<ClimbDetail> {
   List<Send> sendList = [];
 
 
-  Future takeImage() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.camera);
-    if (image == null) return;
+  Future takeImage()  async{
+
+    var byteData = await Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>const PhotoEditor()));
+    if (byteData == null){
+      return;
+    }
     final Directory dir = await getApplicationDocumentsDirectory();
     var docs = dir.path;
-    var filename = basename(image.path);
-    final File localImage = await File(image.path).copy("$docs/$filename");
+    var filename = path.basename("${climb.name}_${climb.id}.png");
+    final File localImage = await File("$docs/$filename").writeAsBytes(byteData);
     await climb.setBannerImage(filename);
     setState(() {
       bannerImage = localImage;
     });
-
   }
 
   void _loadSends(int id) async {
@@ -83,7 +85,6 @@ class _ClimbDetailState extends State<ClimbDetail> {
     var docsPath = docs.path;
     if(climb.bannerImagePath.isNotEmpty){
       image = File("$docsPath/$filename");
-      print( await image.length());
       setState((){
         bannerImage = image;
       });
@@ -113,9 +114,19 @@ class _ClimbDetailState extends State<ClimbDetail> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    bannerImage != null ?  Image.file(
-                        bannerImage!
-                    ) : const Text(""),
+                    bannerImage != null ? Image.file(bannerImage!)
+                    // bannerImage != null ?  Container(
+                    //     //bannerImage!
+                    //   height: 700,
+                    //   decoration: BoxDecoration(
+                    //     image: DecorationImage(
+                    //       fit: BoxFit.fitWidth,
+                    //         image: FileImage(
+                    //             bannerImage!
+                    //         )
+                    //     )
+                    //   ),
+                     : const Text(""),
                     ContentContainer(
                         content: Row(
                             children: [
@@ -142,7 +153,6 @@ class _ClimbDetailState extends State<ClimbDetail> {
                                     children: [
                                       IconButton(
                                         onPressed: (){
-
                                           takeImage();
                                         },
                                         icon: const Icon(Icons.add_a_photo),
