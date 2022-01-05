@@ -5,17 +5,14 @@ import 'package:pitcher/models/send.dart' as sends_mod;
 import 'location.dart';
 import 'climber.dart';
 
-
 const String tableName = "climb";
 
-
-
-enum ClimbType{
+enum ClimbType {
   route,
   boulder,
 }
 
-class Climb{
+class Climb {
   int? id;
   final String name;
   final String description;
@@ -27,7 +24,6 @@ class Climb{
   List<sends_mod.Send> sends = [];
   List<Like> likes = [];
 
-
   Climb({
     required this.name,
     required this.description,
@@ -36,8 +32,7 @@ class Climb{
     required this.typeOfClimb,
   });
 
-
-  static String getCreateTable(){
+  static String getCreateTable() {
     return '''
       CREATE TABLE $tableName(
         _id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,22 +47,16 @@ class Climb{
         bannerimg VARCHAR(50)
        );
     ''';
-
-
   }
 
-
-  Future setBannerImage(String path) async{
+  Future setBannerImage(String path) async {
     var db = await PitcherDatabase().database;
-    await db.update(tableName, {
-      "bannerimg": path
-    });
+    await db.update(tableName, {"bannerimg": path});
     bannerImagePath = path;
     return;
   }
 
-
-  Future insert(int cragid) async{
+  Future insert(int cragid) async {
     var db = await PitcherDatabase().database;
     var givenID = await db.insert(tableName, toJSON(cragid));
     id = givenID;
@@ -82,7 +71,6 @@ class Climb{
     await db.close();
     return;
   }
-
 
   Map<String, dynamic> toJSON(int cragid) {
     return <String, dynamic>{
@@ -115,7 +103,3 @@ class Climb{
     '9c'
   ];
 }
-
-
-
-

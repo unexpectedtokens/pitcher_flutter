@@ -7,7 +7,7 @@ import 'location.dart';
 
 const String tableName = "crag";
 
-class Crag{
+class Crag {
   late int? id;
   late climber.Climber creator;
   late String name;
@@ -18,16 +18,14 @@ class Crag{
   int boulderCount = 0;
   int routeCount = 0;
 
-  Crag({
-    required this.creator,
-    required this.name,
-    required this.description,
-    required this.location,
-    this.id
-  });
+  Crag(
+      {required this.creator,
+      required this.name,
+      required this.description,
+      required this.location,
+      this.id});
 
-
-  static String getCreateTable(){
+  static String getCreateTable() {
     return '''
     CREATE TABLE $tableName(
         _id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,13 +39,7 @@ class Crag{
     ''';
   }
 
-
-
-  void printName(){
-    print(name);
-  }
-
-  Future<Crag> insert() async{
+  Future<Crag> insert() async {
     var db = await PitcherDatabase().database;
     id = await db.insert(tableName, toJSON());
     return this;
@@ -56,7 +48,8 @@ class Crag{
   static Future<List<Crag>> getList() async {
     var db = await PitcherDatabase().database;
     final List<Map<String, dynamic>> maps = await db.query(tableName);
-    var list = await db.rawQuery("SELECT cr._id as cragid, c._id as climberid, cr.creatorid, cr.name, cr.description, cr.lat, cr.long, c.username FROM $tableName cr LEFT JOIN ${climber.tableName} c ON cr.creatorid = c._id");
+    var list = await db.rawQuery(
+        "SELECT cr._id as cragid, c._id as climberid, cr.creatorid, cr.name, cr.description, cr.lat, cr.long, c.username FROM $tableName cr LEFT JOIN ${climber.tableName} c ON cr.creatorid = c._id");
     await db.close();
     return List.generate(maps.length, (index) {
       var crag = list[index];
@@ -68,25 +61,23 @@ class Crag{
           location: Location(
             lat: double.parse(crag["lat"].toString()),
             long: double.parse(crag["long"].toString()),
-          )
-      );
+          ));
       var creator = climber.Climber(
           username: crag["username"].toString(),
           email: "email",
           firstname: "firstname",
           lastname: "lastname",
-          password: "password"
-      );
+          password: "password");
       retVal.creator = creator;
       return retVal;
-
     });
-
   }
 
-  static Future<Crag> getDetail(int itf) async{
+  static Future<Crag> getDetail(int itf) async {
     var db = await PitcherDatabase().database;
-    var list = await db.rawQuery("SELECT cr._id as cragid, c._id as climberid, cr.creatorid, cr.name, cr.description, cr.lat, cr.long, c.username FROM $tableName cr LEFT JOIN ${climber.tableName} c ON cr.creatorid = c._id WHERE cr.id = ?", ["$itf"]);
+    var list = await db.rawQuery(
+        "SELECT cr._id as cragid, c._id as climberid, cr.creatorid, cr.name, cr.description, cr.lat, cr.long, c.username FROM $tableName cr LEFT JOIN ${climber.tableName} c ON cr.creatorid = c._id WHERE cr.id = ?",
+        ["$itf"]);
     print(list);
     late Crag crag;
     list.forEach((element) {
@@ -99,21 +90,19 @@ class Crag{
           location: Location(
             lat: double.parse(element["lat"].toString()),
             long: double.parse(element["long"].toString()),
-          )
-      );
+          ));
     });
     await db.close();
     return crag;
   }
 
-
-  void setClimbCount(){
+  void setClimbCount() {
     var amountBoulder = 0;
     var amountRoute = 0;
-    for(var c in climbs){
-      if(c.typeOfClimb == climb.ClimbType.route){
-        amountRoute ++;
-      }else if(c.typeOfClimb == climb.ClimbType.boulder){
+    for (var c in climbs) {
+      if (c.typeOfClimb == climb.ClimbType.route) {
+        amountRoute++;
+      } else if (c.typeOfClimb == climb.ClimbType.boulder) {
         amountBoulder++;
       }
     }
@@ -121,23 +110,25 @@ class Crag{
     routeCount = amountRoute;
   }
 
-  Future loadClimbs() async{
+  Future loadClimbs() async {
     climbs = <climb.Climb>[];
     var db = await PitcherDatabase().database;
-    var list = await db.rawQuery("SELECT cl._id as climbid, cl.bannerimg, cl.description, cl.name, cl.lat, cl.long, cl.grade, cl.typeofclimb, c.username, c.lastname, c.firstname, c.email FROM ${climb.tableName} cl INNER JOIN ${climber.tableName} c ON cl.postedbyID = c._id WHERE cragid = ?", [id]);
-    List<climb.Climb> fetchedClimbs = List<climb.Climb>.generate(list.length, (index) {
+    var list = await db.rawQuery(
+        "SELECT cl._id as climbid, cl.bannerimg, cl.description, cl.name, cl.lat, cl.long, cl.grade, cl.typeofclimb, c.username, c.lastname, c.firstname, c.email FROM ${climb.tableName} cl INNER JOIN ${climber.tableName} c ON cl.postedbyID = c._id WHERE cragid = ?",
+        [id]);
+    List<climb.Climb> fetchedClimbs =
+        List<climb.Climb>.generate(list.length, (index) {
       var climbid = int.parse(list[index]["climbid"].toString());
       var fetchedClimb = climb.Climb(
         description: list[index]["description"].toString(),
         name: list[index]["name"].toString(),
         location: Location(
             lat: double.parse(list[index]["lat"].toString()),
-            long: double.parse(list[index]["long"].toString())
-        ),
+            long: double.parse(list[index]["long"].toString())),
         grade: list[index]["grade"].toString(),
-        typeOfClimb: list[index]["typeofclimb"].toString() == "boulder" ? climb
-            .ClimbType.boulder : climb.ClimbType.route,
-
+        typeOfClimb: list[index]["typeofclimb"].toString() == "boulder"
+            ? climb.ClimbType.boulder
+            : climb.ClimbType.route,
       );
       fetchedClimb.id = climbid;
       fetchedClimb.bannerImagePath = list[index]["bannerimg"].toString();
@@ -150,32 +141,31 @@ class Crag{
       );
       fetchedClimb.climber = creator;
       return fetchedClimb;
-    }
-    );
+    });
     climbs = fetchedClimbs;
     return;
   }
 
-  Future addClimb(climb.Climb climb) async{
+  Future addClimb(climb.Climb climb) async {
     await climb.insert(id!);
     climbs.add(climb);
     return;
   }
 
-  List<climb.Climb> getRoutes(){
+  List<climb.Climb> getRoutes() {
     var routes = <climb.Climb>[];
-    for ( var c in climbs){
-      if(c.typeOfClimb == climb.ClimbType.route){
+    for (var c in climbs) {
+      if (c.typeOfClimb == climb.ClimbType.route) {
         routes.add(c);
       }
     }
     return routes;
   }
 
-  List<climb.Climb> getBoulders(){
+  List<climb.Climb> getBoulders() {
     var routes = <climb.Climb>[];
-    for ( var c in climbs){
-      if(c.typeOfClimb == climb.ClimbType.boulder){
+    for (var c in climbs) {
+      if (c.typeOfClimb == climb.ClimbType.boulder) {
         routes.add(c);
       }
     }

@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
@@ -11,19 +10,13 @@ import 'package:pitcher/reusables/creator_title.dart';
 import 'package:pitcher/reusables/likes_display.dart';
 import 'package:pitcher/reusables/send_card.dart';
 
-class ClimbDetailArgs{
+class ClimbDetailArgs {
   final Climb climb;
 
-  ClimbDetailArgs({
-    required this.climb
-  });
+  ClimbDetailArgs({required this.climb});
 }
 
-
-
-
-
-class ContentContainer extends StatelessWidget{
+class ContentContainer extends StatelessWidget {
   final Widget content;
 
   const ContentContainer({
@@ -32,14 +25,13 @@ class ContentContainer extends StatelessWidget{
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Container(
       child: content,
       padding: const EdgeInsets.all(20.0),
     );
   }
 }
-
 
 class ClimbDetail extends StatefulWidget {
   const ClimbDetail({Key? key}) : super(key: key);
@@ -54,17 +46,17 @@ class _ClimbDetailState extends State<ClimbDetail> {
   late Climb climb;
   List<Send> sendList = [];
 
-
-  Future takeImage()  async{
-
-    var byteData = await Navigator.of(context).push(MaterialPageRoute(builder: (builder)=>const PhotoEditor()));
-    if (byteData == null){
+  Future takeImage() async {
+    var byteData = await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (builder) => const PhotoEditor()));
+    if (byteData == null) {
       return;
     }
     final Directory dir = await getApplicationDocumentsDirectory();
     var docs = dir.path;
     var filename = path.basename("${climb.name}_${climb.id}.png");
-    final File localImage = await File("$docs/$filename").writeAsBytes(byteData);
+    final File localImage =
+        await File("$docs/$filename").writeAsBytes(byteData);
     await climb.setBannerImage(filename);
     setState(() {
       bannerImage = localImage;
@@ -73,32 +65,31 @@ class _ClimbDetailState extends State<ClimbDetail> {
 
   void _loadSends(int id) async {
     var sends = await Send.getSendsForClimb(id);
-    setState((){
+    setState(() {
       sendList = sends;
     });
   }
 
-  void _loadBannerImage(String filename) async{
+  void _loadBannerImage(String filename) async {
     File image;
 
     var docs = await getApplicationDocumentsDirectory();
     var docsPath = docs.path;
-    if(climb.bannerImagePath.isNotEmpty){
+    if (climb.bannerImagePath.isNotEmpty) {
       image = File("$docsPath/$filename");
-      setState((){
+      setState(() {
         bannerImage = image;
       });
     }
-
   }
-
 
   @override
   Widget build(BuildContext context) {
-    if(initialLoad){
-      final args = ModalRoute.of(context)!.settings.arguments as ClimbDetailArgs;
+    if (initialLoad) {
+      final args =
+          ModalRoute.of(context)!.settings.arguments as ClimbDetailArgs;
       var curClimb = args.climb;
-      setState((){
+      setState(() {
         initialLoad = false;
         climb = curClimb;
       });
@@ -106,15 +97,23 @@ class _ClimbDetailState extends State<ClimbDetail> {
       _loadBannerImage(curClimb.bannerImagePath);
     }
 
-
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SafeArea(
         child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints){
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    bannerImage != null ? Image.file(bannerImage!)
+            builder: (BuildContext context, BoxConstraints constraints) {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                bannerImage != null
+                    ? Image.file(bannerImage!)
                     // bannerImage != null ?  Container(
                     //     //bannerImage!
                     //   height: 700,
@@ -126,125 +125,93 @@ class _ClimbDetailState extends State<ClimbDetail> {
                     //         )
                     //     )
                     //   ),
-                     : const Text(""),
-                    ContentContainer(
-                        content: Row(
-                            children: [
-                              Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 10.0),
-                                        child: ContentTitle(
-                                            title: "${climb.name} - ${climb.grade}"
-                                        ),
-                                      ),
-                                      CreatorText(
-                                          username: climb.climber.username
-                                      ),
-                                    ],
-                                  )
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: (){
-                                          takeImage();
-                                        },
-                                        icon: const Icon(Icons.add_a_photo),
-                                      ),
-                                      LikesDisplay(
-                                          likedByUser: true,
-                                          action: (){
-                                            print("liked");
-                                          },
-                                          likes: climb.likes.length
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ]
-                        )
-                    ),
-                    const Divider(
-                        height: 2.0,
-                        color: Colors.grey
-                    ),
-                    ContentContainer(
-                        content: Text(climb.description)
-                    ),
-                    ContentContainer(
-                      content: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    : const Text(""),
+                ContentContainer(
+                    content: Row(children: [
+                  Expanded(
+                      child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 10.0),
+                        child: ContentTitle(
+                            title: "${climb.name} - ${climb.grade}"),
+                      ),
+                      CreatorText(username: climb.climber.username),
+                    ],
+                  )),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
                         children: [
-                          const Text(
-                            "Send by",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          IconButton(
+                            onPressed: () {
+                              takeImage();
+                            },
+                            icon: const Icon(Icons.add_a_photo),
                           ),
-                          TextButton(
-                              onPressed: ()async {
-                                await Navigator.pushNamed(
-                                    context, "/climbaddsend",
-                                    arguments: {"id": climb.id}
-                                );
-                                _loadSends(climb.id!);
+                          LikesDisplay(
+                              likedByUser: true,
+                              action: () {
+                                print("liked");
                               },
-                              style: TextButton.styleFrom(
-                                primary: Colors.blue,
-
-                              ),
-                              child: Row(
-                                children: const [
-                                  Icon(
-                                      Icons.add
-                                  ),
-                                  Text("Add send")
-                                ],
-                              ))],
+                              likes: climb.likes.length),
+                        ],
                       ),
-                    ),
-                    sendList.length > 0 ?
-                    ConstrainedBox(
-
-                      child: ListView.builder(
-                          itemCount: sendList.length,
-                          itemBuilder: (BuildContext context, int index){
-                            return SendCard(
-                              send: sendList[index],
-                            );
-                          }
+                    ],
+                  ),
+                ])),
+                const Divider(height: 2.0, color: Colors.grey),
+                ContentContainer(content: Text(climb.description)),
+                ContentContainer(
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Send by",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight / 2,
-                          maxHeight: constraints.maxHeight / 2
-                      ),
-
-                    ) : const ContentContainer(
-                        content: Text(
-                            "This climb hasn't been completed by anyone yet"
-                        )
-                    ),
-                  ],
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                      TextButton(
+                          onPressed: () async {
+                            await Navigator.pushNamed(context, "/climbaddsend",
+                                arguments: {"id": climb.id});
+                            _loadSends(climb.id!);
+                          },
+                          style: TextButton.styleFrom(
+                            primary: Colors.blue,
+                          ),
+                          child: Row(
+                            children: const [Icon(Icons.add), Text("Add send")],
+                          ))
+                    ],
+                  ),
                 ),
-              );
-            }
-        ),
+                sendList.length > 0
+                    ? ConstrainedBox(
+                        child: ListView.builder(
+                            itemCount: sendList.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return SendCard(
+                                send: sendList[index],
+                              );
+                            }),
+                        constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight / 2,
+                            maxHeight: constraints.maxHeight / 2),
+                      )
+                    : const ContentContainer(
+                        content: Text(
+                            "This climb hasn't been completed by anyone yet")),
+              ],
+              crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+          );
+        }),
       ),
-
     );
   }
 }
-
-
-
-
-
